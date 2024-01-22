@@ -1,5 +1,5 @@
 const   express           = require("express");
-const { index }           = require("../controller/indexController");
+const   fetch             = require("node-fetch");
 const   apiController     = require("../controller/apiController");
 const { validarId }       = require("../middlewares/validarId");
 const { checks }          = require("../middlewares/checks");
@@ -9,22 +9,19 @@ const   validarCilindrada = require("../middlewares/validarCilindrada");
 const router = express.Router();
 
 router.get("/list", apiController.apiGet);
-router.get("/api/users", (req, res) => 
+router.get("/api/users", async (req, res) =>
 {
-  const response = fetch("https://api.de.ejemplo.com/api/users");
-
-  if (response.status === 200)
+  try
   {
-    const users = response.json();
+    const response  = await fetch("https://jsonplaceholder.typicode.com/users");
+    const users     = await response.json();
     res.status(200).json(users);
   }
-
-  else
+  catch (error)
   {
-    res.status(response.status).json({ error: response.statusText });
+    res.status(500).json({ error: "Error al obtener usuarios de la API externa" });
   }
 });
-
 router.get    ("/motoclicleta/:id", validarId, apiController.buscarPorId);
 router.post   ("/crear", checks, validarCheck, validarCilindrada, apiController.apiPost);
 router.put    ("/editar/:id", validarId, checks, validarCheck, apiController.apiPut);
